@@ -1,0 +1,39 @@
+# Use new container infrastructure to enable caching
+sudo: false
+
+language: haskell
+ghc: 7.10
+
+branches:
+  only:
+    - source
+
+#Caching so the next build will be fast too.
+cache:
+  directories:
+  - $HOME/.stack
+
+before_install:
+  # Download and unpack the stack executable
+  - mkdir -p ~/.local/bin
+  - export PATH=$HOME/.local/bin:$PATH
+  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+
+install:
+  - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
+  - stack --no-terminal --install-ghc --resolver lts-5.0 --only-dependencies  
+
+script:
+  - stack --no-terminal build
+
+after_script:
+  - cd _site
+  - git config --global user.email "$GIT_EMAIL"
+  - git config --global user.name "$GIT_NAME"  
+  - export REMOTE=$(git config remote.origin.url | sed 's/.*:\/\///')
+  - git remote add github https://${GH_TOKEN}@${REMOTE}
+  - git add --all
+  - git status
+  - git commit -m "Built by Travis ( build $TRAVIS_BUILD_NUMBER )"
+  - git push github master:master | grep -v http
+
