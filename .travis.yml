@@ -21,10 +21,10 @@ before_install:
   - ls $HOME/.local/bin  
 
 install:
-  - stack --no-terminal setup  
+  #  - stack --no-terminal setup  
 
 script:
-  - stack --no-terminal build
+  - stack --no-terminal --install-ghc build
 
 after_script:
   - cd _site
