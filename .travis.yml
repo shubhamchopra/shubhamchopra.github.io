@@ -2,7 +2,7 @@
 sudo: false
 
 # Choose a lightweight base image; we provide our own build tools.  
-language: c
+language: c++
 
 env:
   - GHC_VERSION=7.10.3
@@ -21,8 +21,6 @@ before_install:
   - mkdir -p ~/.local/bin
   - export PATH=$HOME/.local/bin:/opt/ghc/$GHC_VERSION/bin:$PATH
   - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
-    #deleting cache manually for just this one build, since we don't want the ghc in cache to be used anymore
-  - rm -rf .stack
 
 addons:
   apt:
