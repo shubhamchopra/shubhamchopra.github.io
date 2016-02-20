@@ -1,8 +1,8 @@
 # Use new container infrastructure to enable caching
 sudo: false
 
-language: haskell
-ghc: 7.10
+# Choose a lightweight base image; we provide our own build tools.  
+language: c
 
 branches:
   only:
@@ -25,7 +25,7 @@ before_install:
 #  - stack --no-terminal --install-ghc --resolver lts-5.0 --only-dependencies  
 
 script:
-  - stack --no-terminal --install-ghc build
+  - stack --no-terminal build
 
 after_script:
   - cd _site
