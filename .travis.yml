@@ -30,8 +30,8 @@ addons:
       - cabal-install-head
       - ghc-$GHC_VERSION
 
-install:
-  - stack --no-terminal setup  
+#install:
+#  - stack --no-terminal setup  
 
 script:
   - stack --no-terminal build
