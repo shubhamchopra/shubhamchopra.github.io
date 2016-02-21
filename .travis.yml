@@ -40,6 +40,7 @@ script:
 
 after_script:
   - cd _site
+  - git checkout -b master  
   - git config --global user.email "$GH_EMAIL"
   - git config --global user.name "$GH_NAME"  
   - export REMOTE=$(git config remote.origin.url | sed 's/.*:\/\///')
