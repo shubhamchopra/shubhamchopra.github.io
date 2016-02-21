@@ -45,7 +45,7 @@ after_script:
   - git status  
   #Travis detaches the head, so we reinitialize git inside _site/  
   - export REMOTE=$(git config remote.origin.url | sed 's/.*:\/\///')
-  - git init  
+    #  - git init  
   - git config --global user.email "$GH_EMAIL"
   - git config --global user.name "$GH_NAME"  
   - git remote add github https://${GH_USER}:${GH_TOKEN}@${REMOTE}
