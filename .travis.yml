@@ -42,6 +42,9 @@ after_script:
   - cd _site
   - ls -al  
   - git --version  
+  - git status  
+  #Travis detaches the head, so we reinitialize git inside _site/  
+  - git init  
   - git config --global user.email "$GH_EMAIL"
   - git config --global user.name "$GH_NAME"  
   - export REMOTE=$(git config remote.origin.url | sed 's/.*:\/\///')
