@@ -50,3 +50,4 @@ after_script:
 # We don't care about commits to the master as a completely new site would be generated everytime  
 - git push github :master 2>&1 | grep -v http  
 - git push github master:master 2>&1 | grep -v http
+
