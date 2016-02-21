@@ -28,7 +28,7 @@ addons:
       - hvr-ghc
     packages:
       - cabal-install-head
-      - ghc-$GHC_VERSION
+      - ghc-7.10.3
 
 #install:
 #  - stack --no-terminal setup  
