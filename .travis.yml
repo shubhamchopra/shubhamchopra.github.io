@@ -7,7 +7,7 @@ language: c
 env:
   global:
   - GHC_VERSION=7.10.3
-  - secure: "oVsZj/aRjDkPGAhRZ7t7X12h6d7YpV8XrSkq7Thax7RavhaxrJqmonSnvch0iAtLw7chYexS23cf5EET5uZKEtY+Ug6oDwR53tEZ4Btwxz8rVTUW39aLRagn+cdXTMSwARyY3KTxnCsG5rd/xRZPxIqqMg+pSNoZOxeIfWdI7QxKKD/rBnXC+slyuu+8An3dKkdySfmJthn8FFhSeHMJv3f1trVgGSP/GyhDQ89byu33xiRbat0oXmOX0RV5MtJETkFyupJdo9BjUnQq+91EU65wscCL19Gn44CYhCc6kAAPDBQkksRJWMjsei5dMtpAkdeAfCheqqPveDahVEKSroJ73WPkUrhOrV877ErY9iiiOkmBTsf4kqJ8a6ewXJ8RuUfC/MeRWEzCwhmOJLI2vSWLCM6C6ssOn4+Ny4x/8iYKWi5A8BFVlNhpUVYu6gGOdAxXhdIaHjhIZIPoPpcgRwafjObVtkFgg7HVATDkkn2Ir5nZ38gd5eX+4X0Zl2KWFWXFTW8oX4KZu/h24jhYoUwtKUCUCNWM9VdIjJDNH3JrkiSx4isQm4+n/Al4rT/LKqaErQ3jes0ED3leeC9uLS0yJeH31PUgxi69BKR2/K+WPRQsGCIb0pFBLGNfPueWNfELe9Qs+i9GTK+ExtmTkFDoQjsUmAqwUP/mkKivlrA="
+  secure: "bZtWEPeaXcRUS/g6smXPW3ji5jz5i1OuSlNSz0SuU6W52cKJfsq7ZYt9jBGx5e6K90jBVVmk11LQJOtUNvxHVh3WlfT6jzpIheYOkBGEYTpjEW/tHH3d3A+i/udDIA29wtz11ro0LqYSIQbI4r4nZiYPv/vI4NrUzZNl6Kou8kwcyDJVVdlyHX/ANCfQ2KQsW+GTqTKTG3DxrmY1bNe9AGW/W9M1kMaRhzvtRtOQHSmQbbQoYm/WtnJpDPvAeK20nPd7v6IQQJOb4PWgLLsu1O9RoUjvPVulTHcLGusZJrphLnsJs89UENfgTAwNyd2FuInXcKgDw6qyniBHCg4d0vuwmMhkSAYdBnZNLAzdfMt8qfK7b2LsSysbNK4qiKvMolrd5GAOgTWOEIWcrOvsZ2sINXGSaYLba07dzkWJeHyG8QntvyqO2d2Gi3W0tLd0gfQRFyFHdjUxIHSJ/gGKU9Suydfpt3yF+HbBfSf7iromctsdUAV4+yLuJeOvrqzg/Cr+gjiDe13aRu0SJxBqUNywgY6KwATFyp7Q1MgeNZQlebMgcsA5Tc4Of51KPXDhWImSPt94oLJHX7MLe79/sTQuUodlk0mGG3EU2rskYEptSoX+1weD25aDkxUsD97kA4zVF6bB0YunYTDaDqNfT+KhtiVUqKWQPfi2Gx2awac="
 
 branches:
   only:
@@ -44,11 +44,11 @@ after_script:
   - git --version  
   - git status  
   #Travis detaches the head, so we reinitialize git inside _site/  
+  - export REMOTE=$(git config remote.origin.url | sed 's/.*:\/\///')
   - git init  
   - git config --global user.email "$GH_EMAIL"
   - git config --global user.name "$GH_NAME"  
-  - export REMOTE=$(git config remote.origin.url | sed 's/.*:\/\///')
-  - git remote add github https://shubhamchopra:${GH_TOKEN}@${REMOTE}
+  - git remote add github https://${GH_USER}:${GH_TOKEN}@${REMOTE}
   - git add --all
   - git status
   - git commit -m "Built by Travis ( build $TRAVIS_BUILD_NUMBER )"
