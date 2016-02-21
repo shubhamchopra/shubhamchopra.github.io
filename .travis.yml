@@ -32,11 +32,11 @@ addons:
       - cabal-install-head
       - ghc-7.10.3
 
-#install:
-#  - stack --no-terminal setup  
+install:
+  - stack --no-terminal build  
 
 script:
-  - stack --no-terminal build
+  - stack --no-terminal exec site build
 
 after_script:
   - cd _site
