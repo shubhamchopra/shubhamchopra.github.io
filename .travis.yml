@@ -7,7 +7,7 @@ language: c
 env:
   global:
   - GHC_VERSION=7.10.3
-  secure: "T7DoPtKGjjwntUss5Srg+XRUjy6uXDC2lnEckfsfPf1b9zg6PlCLSz2UoCIYBW+9LoGhGuBD9yd+RRsHswBWbl5+EsnJU+bGTp29kFpq9AVN35rMS9/lYbTgJDYko7HGfHKB33rw/OsLoBJulbKbafl+SwaYBGAsTwIwrtqg4r1TZI3ToREzak6oTitEbAaQa3khSt/Lw+/eZd97tWs1zzgwG/hMwBN5XZqxHsfQOrXyyMHUm1wMaQ+X3ASyx3zGDqAPhqr/mipxyvhRuL7nEN+OEu4PO4TYaVaGP6uE+6oD0izgsFrOxwlZJCPuw1o/E5L+3HKWTN5tm6mnthax+T0LtzNrM2BNBtHQHIHoBtrGnfc7xIfn5876zMOPOCrB5aqrY/2wRrRzXIOJXkOJZDKRapENoMZ2bDjS4TSSMFXYdy9oxlFRzpEbKtQh0j1Ch3InB/A8I7VWL0SKMDqSvElPKTH4jhebt04JzKniD16kpJrMIaJK6f7U5yOM4O0UIYv9cefUo5wBcZtMdholP7kFzodB6qYGM7QUmT3uJ5dUUu1e7hFl+cDXOgdbyfN/5CH2ydJG06+qDVNr9iXe1XVZ1cr2W1d/oUHSgXSucpkNK4juM7OwNW2yJUBTMnDI+usIFCZHp4hAbwN3x7wPV4/GlVT2CXRxmhGCPYsHGCI="
+  secure: "PyDqNq7CKQ5PmbvgVxtk9L0YHJwY/dk/VfXoQ0Gtzd4JFAI737nwRJXKO9JITgVQXh+PwJDgT9kg1R4SnBGLIV5U3FsVJwulq+PRW0Pc4dSenaYkoktrOBeqmyyztrQuevy/1lmbfBHHevh0AsR1oWaPJrCoAZrn6Uh97XRSWmydQl4T/KUor5cvHX23Dsv6i1rb1XalvWSO5f8Ibevdmdz5at+wVfappXPZjy8JyZfSVgNSUN3GbpRAr2R5AAOzKC0DyILHsNHkBdpuTGZRxvtg0qdhWN00ipcTTBbFILm/zrxjI06ni6FCPHXPhGp4phk5IY9mFi6NTEWhM9L5HPlCfgY5fcpoxx3te1ZKK9sw5IhaQYJ4QyxvjvceYATrHaAPM5fJ4raHgr/xNzOLMnfcEvQ8DDbKxVtEH4zgkRr7Lr+68YB6u4u7Cw9KhqCVVoWUSpy7pTAz4jmJ5X6mRIcv2gb8C3X9Ldx3PZi62u8sRk2Iq/3n3VjDWbewB2ZhnYHdQLBgquGSW063Y0c2oHhUVgHhZACOr8MKzsvmi9ExN03crgLfgCOa2+tR3PMhECvvk32i8Jn6Kwf+0htGdCQL3JAncT/5dFNRvb+MmsDgVK5DLKpyrfYP6IH5wgGWcRofzjmIIeTX4xx0p3FVz6zGoj+dh4O5uu4jzkibwUo="
 
 branches:
   only:
@@ -40,14 +40,9 @@ script:
 
 after_script:
   - cd _site
-  - ls -al  
-  - git --version  
-  - git status  
-  #Travis detaches the head, so we reinitialize git inside _site/  
-  - export REMOTE=$(git config remote.origin.url | sed 's/.*:\/\///')
-    #  - git init  
   - git config --global user.email "$GH_EMAIL"
   - git config --global user.name "$GH_NAME"  
+  - export REMOTE=$(git config remote.origin.url | sed 's/.*:\/\///')
   - git remote add github https://${GH_USER}:${GH_TOKEN}@${REMOTE}
   - git add --all
   - git status
