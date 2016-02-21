@@ -7,7 +7,7 @@ language: c
 env:
   global:
   - GHC_VERSION=7.10.3
-  secure: "bQqx8Q15Jx6mz0ZAAPiVxopQfrdGjtT2rpQjS6t3s+L9+39gwpgCMb3LmWDnLRale9GbdCs81oSjUB5NvZpWUF4/cMbe8yKBOnyioO/nU6sjexGNNJsahZwvx7DIT6eD9dAwecoTYGUvc7lKaxGMgQTtgTPU0WYStzxSM8584ulVWtKs6CBFbYXsn/NmvNvFMQSeDhG8l0DRrYrb2cbMqSvr6WZxJE0L5cU0MBCIvbrmlwFv+QWFMRcME7fjA/Q26QBL7XAvcaSYQpHAp5GcH7zF4HDNRUspNXRQw97XXCciS2pWCsU++k3G/BVol/D3F9sOu6f1gBoHOMgv5tH4MEaFchNT3nulKJra9l2wUzVxr1N43sCnSNKWHCdfYrnwjJJlqx14b4tZz0FbVwgPCJbkMBT+i+FzQoCP/sb6abopB7FXFf4vDsABSJEoXyNolziXQbLS6sJEGOxvr1+jQD92ztlrDIwdg73RwXQKINDSBPMG3yV6cwUEjYDPimrCIjKXZsHW5khd71DOQeAJlgI9uS6taaFDWZb/nJRj/tXvWKBcSvDFtZOIju9wdgQcAvBLyR0Zsif/2/+qzOmEZ//p5z1Xr69L22yTww1mVloWf0SDfM529nIjidJDlETrOrZAUEDDqw3sNxpnZhkv4ku+tqKgrhBE6DgfD65IZF4="
+  secure: "T7DoPtKGjjwntUss5Srg+XRUjy6uXDC2lnEckfsfPf1b9zg6PlCLSz2UoCIYBW+9LoGhGuBD9yd+RRsHswBWbl5+EsnJU+bGTp29kFpq9AVN35rMS9/lYbTgJDYko7HGfHKB33rw/OsLoBJulbKbafl+SwaYBGAsTwIwrtqg4r1TZI3ToREzak6oTitEbAaQa3khSt/Lw+/eZd97tWs1zzgwG/hMwBN5XZqxHsfQOrXyyMHUm1wMaQ+X3ASyx3zGDqAPhqr/mipxyvhRuL7nEN+OEu4PO4TYaVaGP6uE+6oD0izgsFrOxwlZJCPuw1o/E5L+3HKWTN5tm6mnthax+T0LtzNrM2BNBtHQHIHoBtrGnfc7xIfn5876zMOPOCrB5aqrY/2wRrRzXIOJXkOJZDKRapENoMZ2bDjS4TSSMFXYdy9oxlFRzpEbKtQh0j1Ch3InB/A8I7VWL0SKMDqSvElPKTH4jhebt04JzKniD16kpJrMIaJK6f7U5yOM4O0UIYv9cefUo5wBcZtMdholP7kFzodB6qYGM7QUmT3uJ5dUUu1e7hFl+cDXOgdbyfN/5CH2ydJG06+qDVNr9iXe1XVZ1cr2W1d/oUHSgXSucpkNK4juM7OwNW2yJUBTMnDI+usIFCZHp4hAbwN3x7wPV4/GlVT2CXRxmhGCPYsHGCI="
 
 branches:
   only:
@@ -48,7 +48,7 @@ after_script:
   - git init  
   - git config --global user.email "$GH_EMAIL"
   - git config --global user.name "$GH_NAME"  
-  - git remote add github https://shubhamchopra:${GH_TOKEN}@${REMOTE}
+  - git remote add github https://${GH_USER}:${GH_TOKEN}@${REMOTE}
   - git add --all
   - git status
   - git commit -m "Built by Travis ( build $TRAVIS_BUILD_NUMBER )"
