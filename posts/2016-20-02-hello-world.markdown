@@ -12,3 +12,4 @@ uname -or
 ```
 
 Since the blog was supposed to be around Haskell in general, Hakyll seemed like the natural choice to start the blog in. After reading a few blogs around Hakyll, it turns out it was actually a pretty good choice!
+
