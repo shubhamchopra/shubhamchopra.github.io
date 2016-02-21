@@ -1,4 +1,7 @@
+# Use new container infrastructure to enable caching
 sudo: false
+
+# Choose a lightweight base image; we provide our own build tools.    
 language: c
 env:
   global:
@@ -7,17 +10,22 @@ env:
   - secure: ftJnxOl9BVU3PmhvwTAVxVoHoN2vN3aum7/yS/fH9vZSAec4Tjv2IajNS38R+6bJyUcuHAbO81UHGV4kpWLDVxjRFCQ17uQvAfz3TXbxapfAysshs88075PT4NNP69cGcgg67g4sT7TcVUIdjfJGZDX8ifm9nB1eMSJZlcv5O+zbCHan5bgh59cS/CadSgGmc7DRE8WNuibCpbIC/Fkl8lXJxQWA55XgwXEjEDdOqXaUbEWI6wgIGkTqq+ui9bCyOKQdh/FWm3g66S9MaSW43U8JWF9sR6ovoCT9UHmPZS2NPgvvPw1up9tM5722fKFHn3MiOiWgsSSfsB5j4LGWau6FkCjdVx1dl+MVAjpLJH0tL1EcZgVdWILsUdZaBIOF6HGNC6K4lenWz0zulnCbbaeIT4853qyWrW0pUaXQ0IpOYNTCd1hBs22PblLwg/+e+q2ZKswzG0IvTvrNgHFeTNINnENRrZwtb2grntIqbLVMJrLomCFepTZYg3q7Ck3/EPOgfs+GD21sBYCoa2ohs0oP+tHcbd3EoTqcMQHu0Nz1cvBPVMKK3izKdLzCNxy/Zm/trf+aXSclKrcoB9jjEXalsHPJSq+w1Oe3DX38dNQu3Q04uGJXLzxUsY4S7DxCzhKsmR2cKiHu1mKEcJWibPY9AInBJO+1q6d4wT0ux+4=
   - secure: gk3yBv340v7g7j2TZ0FlYArRqEIdOi9ngXE+5UqXIZvP7SQGxw0CMKYjLy6UOBqrmg43+jBJtyT73MZET2zcyB2O/dNs2AzhSXIePCni0gTXGBvw6CmaDPMCsHSGyAws3H95Qp/sVlHbtJ2AzTe9DO+HYJRjQkoXhNDPxEKaUUCf1+b3KnQzzScvYo0nc/TP9Caxk+fNvwxURUd9xm8j97YHXWi9DNa7/r1XLf/dkwodOirO08GQsxJtMQzvRbMY2x0PreyNQLPpDgxKzmlDtpWfnvw9mW+C1C4qMMBqfp0cCmned9qJHvhPcCFX2pxlE1X3TiRrmXjU3MHJFMS3bP7yTkY54wAj0Xmy8DaW1Ew6LNir5vTlJBbwS6UqOkaksaVpMqNVn65QFWoVssM6BiiSdTgq9olLQn86+NYop3XWTxNrLRpNHzPgHJH6EtL4VaUUZ3KqlKXsGH31gu+0QW+OSgkiMEoWklFFTjuKQDr0oUUvqCxigPGDBFDuzjVt6jJaWPRVin5dgjc4zXiHFbIGYasOIzdrgSGqZtrkVe/wg5K0Rc7nF7wrvVak7wI9jH2CqmKrU18K5O4zmW48lOcyKTZ/i35SLzl67RGY+G1N//OxmarFzWXddgnSOhyKGVGaiBaBCwbs3Ct6V9RehpbfVO0iUQpvHX9tFsbBvOI=
   - secure: ekM1FmvUXhJLHnmg9LrPGTf7YkSiZod0W5CSzsnAE+5d9+7DGNxhoeuHidbXOxt+oUy/JEAoh/PnKO/UQXudYrIA9eNQvaKlPyReBUNwyJYDElZAYWUAOBnTw+NDs9yHO7vOCb4Sxn5LtNd6u48deDoNDDxPqevAA45+/rBJ+M/wQRMl+VwD2+ysXZX8vZyU7G3ob34Ho0e9xnBQh1voe+Gvr0lLJKDWAvBelzYbusb0A8DWWOShJsWHmks4WT4yySFficZyymH0ikOEHIhLkx8zEJQdoc51o5x4Rwxmm5yF6H0mI323ALDhrRDYYiH/aBPNze4O+n0yRyiXB5riRXdRgjPH8ul2B8+JlaPKMpaFgYq6PAeW2c0BDOOSpLgDuzW2sFG4ohsB86zcVR4iv1eelRIzGcuY/Avf4gr2NuOdxOUSNuUOxXU7S2UPD+conMMLIouEkQt67X9kQZUGT81oA1aDlhtU2RXCUlZPrnllgNuqnhfqfsw7Q5vo10dJ/pnrm9mdR9ZxAXjrxviwu2qYqEOXXDXrd27JYdW6ULFb+sMvqizIlmDEOApnTWoz/TSEu88pdboHS+FGs8ZvBElRWb35dSR7OBxVl48Fbwpzqi13Ann3fHoz3P2qSYhc+u5/kRCn+KeZAmPWaEMADxNpis/P+PmiwsMTWfg35qM=
+
 branches:
   only:
   - source
+
+#Caching so the next build will be fast too.    
 cache:
   directories:
   - "$HOME/.stack"
+
 before_install:
 - mkdir -p ~/.local/bin
 - export PATH=$HOME/.local/bin:/opt/ghc/$GHC_VERSION/bin:$PATH
 - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards
   --strip-components=1 -C ~/.local/bin '*/stack'
+
 addons:
   apt:
     sources:
@@ -25,10 +33,13 @@ addons:
     packages:
     - cabal-install-head
     - ghc-7.10.3
+
 install:
 - stack --no-terminal build
+
 script:
 - stack --no-terminal exec site build
+
 after_script:
 - cd _site
 - git checkout -b master
