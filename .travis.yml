@@ -42,6 +42,7 @@ after_script:
 - git config --global user.email "$GH_EMAIL"
 - git config --global user.name "$GH_NAME"
 - export REMOTE=$(git config remote.origin.url | sed 's/.*:\/\///')
+- git init  
 - git remote add github https://${GH_USER}:${GH_TOKEN}@${REMOTE}
 - git add --all
 - git status
