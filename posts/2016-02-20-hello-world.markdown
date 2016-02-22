@@ -106,3 +106,4 @@ Once you are done with the GitHub portion, your website can be accessed at _user
 
 ## Gotchas
 * I found out that I had to make _master_ branch the default branch so GitHub start hosting the site in it. That means that it won't let you delete the branch. Oddly, just switching the default branch back to _source_ seemed to work. GitHub has no trouble reading the website in the master branch now, even though it is not the default branch.
+* Careful with the tokens again. The _git push_ at the end are piped through grep to avoid printing the http line which would contain the secure token.
