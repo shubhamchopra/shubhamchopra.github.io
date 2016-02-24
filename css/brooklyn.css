@@ -19,7 +19,7 @@ body {
 }
 
 div#header {
-  background: url(../images/haskell-logo.png) no-repeat;
+//  background: url(../images/haskell-logo.png) no-repeat;
   background-size: 73px;
   border-bottom: 2px solid #ddd;
   margin-bottom: 30px;
@@ -29,7 +29,7 @@ div#header {
 
 div#logo a {
   color: #343333;
-  display:none;
+//  display:none;
   float: left;
   font-size: 18px;
   font-weight: bold;

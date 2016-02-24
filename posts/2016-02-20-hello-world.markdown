@@ -54,7 +54,8 @@ This is where we download our own stack binary from Stack's website. We decompre
     before_install:
     - mkdir -p ~/.local/bin
     - export PATH=$HOME/.local/bin:/opt/ghc/$GHC_VERSION/bin:$PATH
-    - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+    - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 |
+    tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
 
 Note that we still would not have GHC available in the environment yet. So we install it here.
 
