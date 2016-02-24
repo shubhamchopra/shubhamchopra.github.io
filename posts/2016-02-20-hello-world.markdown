@@ -95,6 +95,8 @@ So what we do here, it to enter the _site folder, init a git repo, set the remot
     - git push github :master 2>&1 | grep -v http  
     - git push github master:master 2>&1 | grep -v http
 
+If you aren't hosting your blog on your own website, you don't need the line where __CNAME__ file is created. 
+
 Lastly, you can also tell Travis to send you notifications on the build process. Here I am telling Travis to send me an email always on success. By default, it always sends an email on failures.
 
     notifications:
@@ -102,9 +104,6 @@ Lastly, you can also tell Travis to send you notifications on the build process.
         recipients:
           - email@example.com
         on_success: always
-
-
-If you aren't hosting your blog on your own website, you don't need the line where __CNAME__ file is created. 
 
 ### The _secure_ section
 As a part of this process, you would be committing code back to your repo in GitHub. You would have to provide authentication tokens to be able to do that. But these authentication tokens are equivalent to the password to your GitHub account. _Do NOT put your token into a file like this and make it public_. Travis solves this problem by providing an encryption tool. More information about is available [here](https://docs.travis-ci.com/user/encryption-keys/). 
