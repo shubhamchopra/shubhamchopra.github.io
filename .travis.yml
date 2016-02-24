@@ -57,7 +57,4 @@ notifications:
     recipients:
       - chopra.shubham+travis@gmail.com
     on_success: always
-    template:
-      - "%{repository} (%{commit}) : %{message} %{result} "
-      - "Build details: %{build_url}"
         
