@@ -52,3 +52,12 @@ after_script:
 - git push github :master 2>&1 | grep -v http  
 - git push github master:master 2>&1 | grep -v http
 
+notifications:
+  email:
+    recipients:
+      - chopra.shubham+travis@gmail.com
+    on_success: always
+    template:
+      - "%{repository} (%{commit}) : %{message} %{result} "
+      - "Build details: %{build_url}"
+        
