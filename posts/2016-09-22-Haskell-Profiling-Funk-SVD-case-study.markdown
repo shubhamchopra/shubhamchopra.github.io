@@ -355,7 +355,7 @@ Awesome! We got the memory usage down to a total of 12 MB, we shaved off another
 This looks a lot better. Ratings occupy most of the space, and they should. We do infact read the initial ratings and then hold on to them for the entire run of the program. At every dimension, we also maintain residuals along with the ratings. For all dimensions, we keep appending to the user and item vectors, so it makes sense that the memory usage by Maps would grow a little over the run of the program. 
 
 There is one last thing that I want to show before we end this discussion. Note that we were always using the _profiling_ executable when generating the graphs. Haskell compilation can perform a large number whole-sale optimizations that exploit the pure nature of the code. When generating profiling binaries, though, the compiler holds back some optimizations. This can be seen clearly, when we run the optimized binary. 
-```haskell
+```
    6,999,678,952 bytes allocated in the heap
    1,252,786,760 bytes copied during GC
        2,321,296 bytes maximum residency (207 sample(s))
