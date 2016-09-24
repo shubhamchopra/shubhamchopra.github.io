@@ -381,7 +381,7 @@ There is one last thing that I want to show before we end this discussion. Note 
   Productivity  74.3% of total user, 74.5% of total elapsed
 
 ```
-The optimized run shaved off nearly 50% of both both the total run-time and total memory usage.
+The optimized run shaved off nearly 50% of both the total run-time and total memory usage.
 
 _All in all, we went from consuming around 650Mb and taking about 20s to using just 12Mb and taking only 7s. That is a nearly 15x reduction in memory usage and a 3x speed-up._
 
