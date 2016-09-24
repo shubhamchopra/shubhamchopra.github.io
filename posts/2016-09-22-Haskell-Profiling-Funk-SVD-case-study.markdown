@@ -19,10 +19,10 @@ Very briefly, it is a matrix factorization technique (Singular Value Decompositi
 Since this post is about Haskell and profiling, lets now jump right into it. The rest of this post is arranged as follows:
 We start with a preliminary implementation of Funk SVD that gives us the required output. We then profile it using tools available in GHC. GHC has profilers that can help us understand how and where memory is being used. Based on what we glean from the profiling tools, we try to modify code to minimize memory usage.
 
-## [Funk SVD - Initial Version](https://github.com/shubhamchopra/RecommendationSystem/InitialVersion)
+## Funk SVD - Haskell implementation
 We will go over a brief code overview to understand the flow. The src/Main.hs file contains the main function, no surprises there. I read a gzip compressed rating file, that contains ratings in the form "rating|user|item" where the rating is a double, user and items are both integers. We read this file each entry is used to create a _Rating_ object. We also create the _Config_ object that fills up some parameters used in estimation. 
 
-The meat of the code is in src/FunkSVD/SerialEstimator.hs. The following three functions are central to the logic:
+The meat of the code is in [SerialEstimator.hs](https://github.com/shubhamchopra/RecommenderSystem/blob/master/InitialVersion/src/FunkSVD/SerialEstimator.hs). The following three functions are central to the logic:
 
 ```haskell
 runIteration :: Config 
