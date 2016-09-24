@@ -383,6 +383,8 @@ There is one last thing that I want to show before we end this discussion. Note 
 ```
 The optimized run shaved off nearly 50% of both both the total run-time and total memory usage.
 
+_All in all, we went from consuming around 650Mb and taking about 20s to using just 12Mb and taking only 7s. That is a nearly 15x reduction in memory usage and a 3x speed-up._
+
 ##Conclusions
 Haskell is inherently a pure functional lazy language. This laziness helps optimize away things that are never needed and can help in a lot of patterns like infinite streams. The pure functionalness lets GHC do a lot of optimizations on the code. However, when using it for computationally intensive tasks like here, where we know we would be evaluating all the numbers and every iteration would depend on the result of the previous iteration, giving the compiler indications using the _Bang Patterns_ and/or _seq_ can go a long way in getting significant speed-ups and memory efficiency. 
 
