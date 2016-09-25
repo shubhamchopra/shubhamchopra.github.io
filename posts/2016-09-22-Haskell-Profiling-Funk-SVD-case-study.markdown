@@ -353,7 +353,7 @@ Awesome! We got the memory usage down to a total of 12 MB, we shaved off another
 
 This looks a lot better. Ratings occupy most of the space, and they should. We do infact read the initial ratings and then hold on to them for the entire run of the program. At every dimension, we also maintain residuals along with the ratings. For all dimensions, we keep appending to the user and item vectors, so it makes sense that the memory usage by Maps would grow a little over the run of the program. 
 
-There is one last thing that I want to show before we end this discussion. Note that we were always using the _profiling_ executable when generating the graphs. Haskell compilation can perform a large number whole-sale optimizations that exploit the pure nature of the code. When generating profiling binaries, though, the compiler holds back some optimizations. This can be seen clearly, when we run the optimized binary. 
+There is one last thing that I want to show before we end this discussion. Note that we were always using the _profiling_ executable when generating the graphs. Haskell compilation can perform a large number of whole-sale optimizations that exploit the pure nature of the code. When generating profiling binaries, though, the compiler holds back some optimizations. This can be seen clearly, when we run the optimized binary. 
 ```
    6,999,678,952 bytes allocated in the heap
    1,252,786,760 bytes copied during GC
@@ -382,7 +382,7 @@ There is one last thing that I want to show before we end this discussion. Note 
 ```
 The optimized run shaved off nearly 50% of both the total run-time and total memory usage.
 
-_All in all, we went from consuming around 650Mb and taking about 20s to using just 12Mb and taking only 7s. That is a nearly 15x reduction in memory usage and a 3x speed-up._
+_All in all, we went from consuming around 650Mb and taking about 20s to using just 12Mb and taking only 7s. That is a nearly 50x reduction in memory usage and a 3x speed-up._
 
 ##Conclusions
 Haskell is inherently a pure functional lazy language. This laziness helps optimize away things that are never needed and can help in a lot of patterns like infinite streams. The pure functionalness lets GHC do a lot of optimizations on the code. However, when using it for computationally intensive tasks like here, where we know we would be evaluating all the numbers and every iteration would depend on the result of the previous iteration, giving the compiler indications using the _Bang Patterns_ and/or _seq_ can go a long way in getting significant speed-ups and memory efficiency. 
