@@ -77,7 +77,7 @@ The _install_ and _script_ tags show the usual commands we would run to build th
 
 A lot of the magic happens in next section. A few things to note before we go further. Travis checkouts the branch in a way that puts it in a _detached head_ state. This means any changes to the branch cannot be committed. Also, we had _site in .gitignore.
 
-So what we do here, it to enter the _site folder, init a git repo, set the remote to our own repo and just commit back only the content of this directory to the _master_ branch of our repo. That's all fine, but lets say this commit happens once. The next time we push any changes, the master branch already exists and git won't let us push changes until we pull the master branch. Since the website is anyways getting generated every time, and it is not the source we are tracking, deleting the master and then pushing the website to master afresh avoids all the trouble around merge conflicts.
+So what we do here, is to enter the _site folder, init a git repo, set the remote to our own repo and just commit back only the content of this directory to the _master_ branch of our repo. Since the website is anyways getting generated every time, and it is not the source we are tracking, we force push to master to avoid all the trouble around merge conflicts.
 
     after_script:
     - cd _site
@@ -92,8 +92,7 @@ So what we do here, it to enter the _site folder, init a git repo, set the remot
     - git status
     - git commit -m "Built by Travis ( build $TRAVIS_BUILD_NUMBER )"
     # We don't care about commits to the master as a completely new site would be generated everytime  
-    - git push github :master 2>&1 | grep -v http  
-    - git push github master:master 2>&1 | grep -v http
+    - git push github master:master -f 2>&1 | grep -v http
 
 If you aren't hosting your blog on your own website, you don't need the line where __CNAME__ file is created. 
 
