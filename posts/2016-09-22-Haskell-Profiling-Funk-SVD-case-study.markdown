@@ -7,7 +7,7 @@ description: Starting with a simple Funk SVD implementation, using some GHC prof
 Recommendation systems today are ubiquitous. Almost all websites use them for everything from recommending content to read to movies you might like to watch to products you might want to purchase. When there are plenty of options and resources like time or money or both are scarce, these act like your friends to help guide you through a maze of options and come out reasonably satisfied from the experience. If you did not like the experience or even if you did like it, you will rate whatever it is you consumed and the
 system will *learn* from it and try to be better at it the next time. In essence, they solve a quintessentially _first world_ problem of plenty.
 
-It is this _learning_ that is an interesting problem. Large amounts of data is collected on what different users consumed, and how they rated it, and is used to come up with mathematical models that can predict, based on the past experiences, what the users might like. At the core, therefore, is a user-item matrix that contains ratings of various items by various users. This matrix, almost always, is extremely sparse. I bet you don't know anyone who has seen all the movies on Netflix, for example. (If you do, that person probably needs a recommendation system to tell them to go outside once in a while, the graphics are really amazing.)
+It is this _learning_ that is an interesting problem. Large amounts of data is collected on what different users consumed, and how they rated it, and is used to come up with mathematical models that can predict, based on the past experiences, what the users might like. At the core, therefore, is a user-item matrix that contains ratings of various items by various users. This matrix, almost always, is extremely sparse. I bet you don't know anyone who has seen all the movies on Netflix, for example. (If you do, that person probably needs a recommendation system to tell them to go outside once in a while, the graphics are really amazing!)
 Most people would have only consumed a very small subset of the entire universe of product a business deals in. 
 
 I will not pretend to be an expert in recommendation systems. There are several online courses that go in-depth into various techniques that can be used for recommendations. I personally completed and enjoyed the "Introduction to Recommender Systems" course on [Coursera](https://www.coursera.org), but I see that it has been made into a specialization [now](https://www.coursera.org/specializations/recommender-systems). 
@@ -122,12 +122,11 @@ The _bytes maximum residency_ is the maximum number of bytes our process was usi
 the process (MUT) vs GC. Finally, productivity tells us that only 31% of the time was spent doing our number crunching. The rest was spent garbage collecting. This code is screaming for some optimization.
 
 So let's try to find out the memory hogs in our code. We do this by building the binaries with profiling enabled. We then execute the binaries using a command like ```stack exec -- RecommendationSystemInitialVersionProfiling ./testRatings.gz +RTS -s -p -hc```. This creates a profiling output file `RecommendationSystemInitialVersionProfiling.hp`. This information can be converted to a graphic using ```hp2ps -e8in -c <filename.hp>```. This creates a PS file with a graph that shows memory usage over
-time. The _-hc_ option creates a graph that shows memory usage my closures and functions.
+time. The _-hc_ option creates a graph that shows memory usage by cost center stack which produced the data, so mostly the functions and closures that might be producing the data.
 
 ![Initial version, memory usage using -hc](/images/2016-09-22-HaskellProfiling-InitialVersion-hc-v1.jpg "Initial version, memory usage using -hc")
 
 That doesn't leave any doubts about which function is the memory hog here. Lets see what types are actually taking up all that space. This can be done by running the command ```stack exec -- RecommendationSystemInitialVersionProfiling ./testRatings.gz +RTS -s -p -hy```. 
-
 
 ![Initial version, memory usage using -hy](/images/2016-09-22-HaskellProfiling-InitialVersion-hy-v1.jpg "Initial version, memory usage using -hy")
 
@@ -389,6 +388,8 @@ _All in all, we went from consuming around 650Mb and taking about 20s to using j
 Haskell is inherently a pure functional lazy language. This laziness helps optimize away things that are never needed and can help in a lot of patterns like infinite streams. The pure functionalness lets GHC do a lot of optimizations on the code. However, when using it for computationally intensive tasks like here, where we know we would be evaluating all the numbers and every iteration would depend on the result of the previous iteration, giving the compiler indications using the _Bang Patterns_ and/or _seq_ can go a long way in getting significant speed-ups and memory efficiency. 
 
 The profiling binaries can give a very good idea of what the program run-time memory usage looks like. We can also generate charts to help guide the optimization effort. Once, all that is done, we should expect the optimized binaries to peform a lot better than the profiling ones even.
+
+We only scratched the surface with memory profiling. GHC offers a host of other tools for time and allocation profiling, as documented [here](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html). 
 
 ##Reproducing these stats and charts
 The code for both the initial and optimized version is available [here](https://github.com/shubhamchopra/RecommenderSystem). To get movie recommendations, you can get data from Netflix or [MovieLens](http://grouplens.org/datasets/movielens/). I am currently using GHC 7.10.3. You might get different numbers depending on the sample of data you use, the processor and such, but the shape/pattern of the charts would likely be similar.

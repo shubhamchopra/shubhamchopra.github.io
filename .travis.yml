@@ -49,8 +49,7 @@ after_script:
 - git status
 - git commit -m "Built by Travis ( build $TRAVIS_BUILD_NUMBER )"
 # We don't care about commits to the master as a completely new site would be generated everytime  
-- git push github :master 2>&1 | grep -v http  
-- git push github master:master 2>&1 | grep -v http
+- git push github master:master -f 2>&1 | grep -v http
 
 notifications:
   email:
