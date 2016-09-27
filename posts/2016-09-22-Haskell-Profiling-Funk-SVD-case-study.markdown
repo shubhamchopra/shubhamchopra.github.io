@@ -10,11 +10,11 @@ system will *learn* from it and try to be better at it the next time. In essence
 It is this _learning_ that is an interesting problem. Large amounts of data is collected on what different users consumed, and how they rated it, and is used to come up with mathematical models that can predict, based on the past experiences, what the users might like. At the core, therefore, is a user-item matrix that contains ratings of various items by various users. This matrix, almost always, is extremely sparse. I bet you don't know anyone who has seen all the movies on Netflix, for example. (If you do, that person probably needs a recommendation system to tell them to go outside once in a while, the graphics are really amazing!)
 Most people would have only consumed a very small subset of the entire universe of product a business deals in. 
 
-I will not pretend to be an expert in recommendation systems. There are several online courses that go in-depth into various techniques that can be used for recommendations. I personally completed and enjoyed the "Introduction to Recommender Systems" course on [Coursera](https://www.coursera.org), but I see that it has been made into a specialization [now](https://www.coursera.org/specializations/recommender-systems). 
-
 While recommender systems have existed for some time now, the problem itself got it's biggest marketing boost courtesy the [*Netflix Challenge*](http://www.netflixprize.com/). Netflix gave a sizeable amount of data to train the models and that attracted a lot of researchers. Not to mention the million dollars. One such researcher goes by a pseudonym "Simon Funk" and came up with a technique that is now called [_Funk SVD_](http://sifter.org/~simon/journal/20061211.html). 
 
 Very briefly, it is a matrix factorization technique (Singular Value Decomposition) to decompose the ratings matrix. As a result of this factorization, we end up with user vectors and item vectors, each describing some salient preferences of users and salient features of items. Once we get this, we can now use dot product of a user vector with an item vector to get an estimate of how a user would rate the item. 
+
+I will not pretend to be an expert in recommendation systems. There are several online courses that go in-depth into various techniques that can be used for recommendations. I personally completed and enjoyed the "Introduction to Recommender Systems" course on [Coursera](https://www.coursera.org), but I see that it has been made into a specialization [now](https://www.coursera.org/specializations/recommender-systems). 
 
 Since this post is about Haskell and profiling, lets now jump right into it. The rest of this post is arranged as follows:
 We start with a preliminary implementation of Funk SVD that gives us the required output. We then profile it using tools available in GHC. GHC has profilers that can help us understand how and where memory is being used. Based on what we glean from the profiling tools, we try to modify code to minimize memory usage.
@@ -333,7 +333,7 @@ With that done, lets take this for a spin.
 
   INIT    time    0.000s  (  0.001s elapsed)
   MUT     time    5.404s  (  5.478s elapsed)
-  GsHC      time    1.655s  (  1.661s elapsed)
+  GC      time    1.655s  (  1.661s elapsed)
   RP      time    0.000s  (  0.000s elapsed)
   PROF    time    0.048s  (  0.048s elapsed)
   EXIT    time    0.000s  (  0.000s elapsed)

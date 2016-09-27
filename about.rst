@@ -2,7 +2,7 @@
 title: About
 ---
 
-My name is Shubham Chopra. I write code. I have some experience writing Java, Scala and am currently learning Haskell. 
+My name is Shubham Chopra. I currently work at [Bloomberg](http://www.bloomberg.com/). I have some experience writing Java, Scala and am currently learning Haskell. 
 
 My interests are mostly around distributed computing.
 
