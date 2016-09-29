@@ -274,7 +274,7 @@ Let's check out the performance with this change.
   Productivity  73.6% of total user, 73.4% of total elapsed
 
 ```
-So we just shaved off a little over a second from the total run-time. The productivity is up to about 74% now. We are also using about 15MB less memory. So we made some progress. Let's look at the graphs now:
+So we just shaved off a little over a second from the total run-time. The productivity is up to about 74% now. We are also using a lot less memory. So we made some progress. Let's look at the graphs now:
 
 ![memory usage using -hc](/images/2016-09-22-HaskellProfiling-InitialVersion-hc-v3.jpg "memory usage using -hc")
 
