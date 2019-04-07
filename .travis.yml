@@ -5,9 +5,8 @@ sudo: false
 language: c
 env:
   global:
-  - GHC_VERSION=7.10.3
-  - secure: "Z0oYkfTm6TfPxKmVppFl9U20zAuwqoehiO8N8tgvay85jeVhBiC5hI5ZVGrEzn8lI9gLPLbixZCBOvZZ0R5t1lwaKyHHkF+EDAMV0ZECrj6tyvKPvCDjDISacHDMo+ghOWXc9/WAkZeu6wFU4FYOSP2BVgmu/PbOQSwjgwhmJczVGuk6b231wz2J8sz1GNo24NpHMRIOyCKkvbedIFQRk1QQP6QjJH25xlOwesZfBvIVRGaK9NlPFHZNhqyv1XPtYjwa2CSf1HxSfEoO5/ORml536mTiHd0dINnEJUClzUUo8eH4+iYAhQzMd+leitDOfP7N+PPblkgEay9i47exd8JD0BldyLzvUXh95IR1c/UUy+ksAdpBUmFQScjBhpxfXbdj1mpXYIzyqO3B9EW1K7UMWSiU5zF2GsHpFtMY7By55D7uxNB8uDkB0Oeln/JVo76dureuUTdAgbSjAV2Dcbs82jghCEqW2xo0RUCXb9e4LhqFfbXtDSGPGZ5zBPkeCpdjxe5Q7E3lnK1wWSfbHFGjU2/lVe7nU4YHIFu4Os+SadbV98/YwyTWt+PwleWh1IMuppHnllAJvLt2rchCmvYvqoOhgVf7qRwEG0L5y3/tPHJSoe1KCzPgg0kriIsxcMwVPk4q4OQSS2ZDgHLWhHl74sxdTDWrHY30QF8mHGs="
-
+  - secure: "jDktdEylRLpUfLXfAgI7SR1/L1fG8RjC2JonNlMC7HGu8UokTPPoMJ4ephXEax6nCxEex96DLSxP1mNs8HKajMuuAXrZeoDjUMI6PI8Y0q2t5nO4aaVqQ67mWK7PHlsR650nwSLhvetrfX9My3+80pLYR4PN1Ct/ASIlaeiAIWhbWlVgUPMKIL1KEBCiO5vcNpp/8nWgbHgyDJtA6ewcwuYVve+gbFcCT/yiIMbpi9zGbob7KMOcKUShKfN37UmS2Z6BhCXSoSOh9pjvZtDZuRK+tmTJBMbiy1m5oxObKTKSj2sBpsXq0nsTgrfkHbLZKAdEN/oiijn6jnol06FOhcEl8fGD+nTKRTO+bd7P9+5rZwM+I78mviQb4D/oeTUQcWjWIJdoGRtRHd8bC/1jU7EBUTRYlfSGscHCb/3Ba2XhZcYlhedz4u0/DJ7SQ71LCpKQ4ybV8UDypkd9ZvdPrHitDbSrQcZZQo6KsB/cOKAzrZPfM+7HpQ+Yupw6R5V0zfC0oy69AuXN+yyqHYafWxe/O3D02j46bFELI94d44xamzfdT+3OFXeuvw2/+E6AylZEIwOoR9N7vfc+d+WVSJLd6s9WXf4H1SX9reZxhq4jgB7mSins75bt/5D7tx7LJkTNyRBzEPyDJJ8EucHEz4isrEJzDAORfe++dFgFp6M="
+  
 branches:
   only:
   - source
@@ -19,8 +18,7 @@ cache:
 
 before_install:
 - mkdir -p ~/.local/bin
-- export PATH=$HOME/.local/bin:/opt/ghc/$GHC_VERSION/bin:$PATH
-#- travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+- export PATH=$HOME/.local/bin:$PATH
 - travis_retry curl -sSL https://get.haskellstack.org/ | sh
 
 #addons:
