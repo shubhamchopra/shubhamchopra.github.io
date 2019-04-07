@@ -21,21 +21,16 @@ before_install:
 - export PATH=$HOME/.local/bin:$PATH
 - travis_retry curl -sSL https://get.haskellstack.org/ | sh
 
-#addons:
-#  apt:
-#    sources:
-#    - hvr-ghc
-#    packages:
-#    - cabal-install-head
-#    - ghc-7.10.3
-
 install:
+- stack --no-terminal setup
+
+# steps till script are cached. we prepare the environment here.
+script:
+- stack path
 - stack --no-terminal build
 
-script:
-- stack --no-terminal exec site build
-
 after_script:
+- stack --no-terminal exec site build
 - cd _site
 # Adding a CNAME file, so our custom domain works with github 
 - echo "blog.${GH_USER}.com" > CNAME  
