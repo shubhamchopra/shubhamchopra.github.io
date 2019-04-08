@@ -21,7 +21,7 @@ You can build your site using _stack exec site build_. Your static website would
 ## [Travis CI](https://travis-ci.org)
 Travis is a continuous integration tool. It lets you specify the details of your project in a simple specification and uses it to build and test your project. You don't have to setup your own environment like you would have to do with say Jenkins. And its free for open-source projects! So what you now do is specify the details of your Hakyll project in a .travis.yml file and let Travis talk to your GitHub repo. We are being a little sneaky here and not really using Travis for it's intended purpose. We don't really run any tests, we are just using it's capability to build using our instructions and then commit the generated website back.
 
-Things can get a little nasty here, so I will walk through the bits. First up, as you probably saw when you installed Hakyll, it takes a decent amount of time to download and build all the libs it depends on. So we would ideally want to cache this collection of libs. Travis lets you do that with its new container infrastructure. We enable it by setting _sudo: false_.
+Things can get a little nasty here, so I will walk through the bits. First up, as you probably saw when you installed Hakyll, it takes a decent amount of time to download and build all the libs it depends on. So we would ideally want to cache this collection of libs. Travis lets you do that with its new container infrastructure. We enable it by setting _sudo: false_. 
 
     # Use new container infrastructure to enable caching
     sudo: false
@@ -35,10 +35,9 @@ We set some environment variables here. We will get to the _secure_ section in a
 
     env:
       global:
-      - GHC_VERSION=7.10.3
       - secure: [encrypted secret key]
 
-Here, we tell Travis that we would only be interested in checking out the branch source.
+Here, we tell Travis that we would only be interested in checking out the branch source. Well also tell Travis the directory that contains our build so it can cache it for later.
 
     branches:
       only:
@@ -54,32 +53,26 @@ This is where we download our own stack binary from Stack's website. We decompre
     before_install:
     - mkdir -p ~/.local/bin
     - export PATH=$HOME/.local/bin:/opt/ghc/$GHC_VERSION/bin:$PATH
-    - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 |
-    tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+    - travis_retry curl -sSL https://get.haskellstack.org/ | sh
+    
+Stack would install the appropriate GHC version and the build dependencies in the local stack folder.
 
-Note that we still would not have GHC available in the environment yet. So we install it here.
-
-    addons:
-      apt:
-        sources:
-        - hvr-ghc
-        packages:
-        - cabal-install-head
-        - ghc-7.10.3
-
-The _install_ and _script_ tags show the usual commands we would run to build the website.
+The _install_ and _script_ tags show the usual commands we would run to build Hakyll.
 
     install:
-    - stack --no-terminal build
-    
+    - stack --no-terminal setup
+
+    # steps till script are cached. we prepare the environment here.
     script:
-    - stack --no-terminal exec site build
+    - stack path
+    - stack --no-terminal build
 
 A lot of the magic happens in next section. A few things to note before we go further. Travis checkouts the branch in a way that puts it in a _detached head_ state. This means any changes to the branch cannot be committed. Also, we had _site in .gitignore.
 
 So what we do here, is to enter the _site folder, init a git repo, set the remote to our own repo and just commit back only the content of this directory to the _master_ branch of our repo. Since the website is anyways getting generated every time, and it is not the source we are tracking, we force push to master to avoid all the trouble around merge conflicts.
 
     after_script:
+    - stack --no-terminal exec site build
     - cd _site
     # Adding a CNAME file, so our custom domain works with github 
     - echo "blog.${GH_USER}.com" > CNAME  
