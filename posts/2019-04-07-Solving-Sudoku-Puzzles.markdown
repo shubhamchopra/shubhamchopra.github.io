@@ -30,8 +30,8 @@ getPotentialCandidates v pos
         colId = (pos-1) `mod` 9
         Just row = getRow (rowId+1) v
         Just col = getColumn (colId+1) v
-        Just block = getBlock ((rowId `div` 3)*3 + (colId `div` 3) + 1) v --`debug` (show pos ++ "row" ++ show rowId ++ "col" ++ show colId)
-        missingRowNums = getMissingNumbers row --`debug` (prettyPrintBlock $ Just block)
+        Just block = getBlock ((rowId `div` 3)*3 + (colId `div` 3) + 1) v 
+        missingRowNums = getMissingNumbers row 
         missingColNums = getMissingNumbers col 
         missingBlkNums = getMissingNumbers block
      in missingRowNums `Set.intersection` missingColNums `Set.intersection` missingBlkNums
@@ -42,13 +42,13 @@ solve v 81 = [v]
 solve v pos 
   | char /= '.' = solve v (pos + 1)
   | otherwise = 
-    let candidates = Set.toList $ getPotentialCandidates v pos --`debug` (prettyPrintPuzzle v)
+    let candidates = Set.toList $ getPotentialCandidates v pos
         recurSolve candidate = solve (V.update v (V.singleton (pos-1, candidate))) (pos+1)  
-     in concat $ map recurSolve candidates --`debug` ("pos: " ++ show pos ++ ", candidates: " ++ show candidates)
+     in concat $ map recurSolve candidates 
   where char = v V.! (pos - 1)  
 ```
 
-The code works! Well, sort of. It definitely tries to do what we inteded. It's not the best approach though and the code just take a very long time (might not even finish) for even the first problem. Turns out, the very first position might have a large number of possibilities, and our choice of naively choosing the next position right after might also not be the best approach, as that would give us a dense tree, and we'd have a lot of branches to check.
+The code works! Well, sort of. It definitely tries to do what we intended. It's not the best approach though and the code just take a very long time (does not even finish) for even the first problem. Turns out, the very first position might have a large number of possibilities, and our choice of naively choosing the next position right after might also not be the best approach, as that would give us a dense tree, and we'd have a lot of branches to check.
 
 The problem needs a re-look. A DFS based approach does seem reasonable. We might have to be a little clever pruning our tree though. Ultimately, that would decide how quickly we are able to get to the solution. The nature of the problem ensures that as we go down a path, the number of options reduces, so part of the work is done for us. We need to be clever about choosing which path to start with. One way to do this would be to start with a box that has the least possible number of options. This seems quite intuitive, as this is also how one generally starts solving a Sudoku puzzle. So we try that approach. The main recursion is now modified to look like the following:
 
@@ -62,8 +62,8 @@ getPositionWithFewestOptions v =
    
 solve :: V.Vector Char -> [V.Vector Char]
 solve v = 
-  let (pos, candidatesSet) = getPositionWithFewestOptions v --`debug` ("--------------------\n" ++ prettyPrintPuzzle v)
-      candidates = Set.toList candidatesSet --`debug` ("pos: " ++ show pos ++ ", candidates: " ++ show candidatesSet)
+  let (pos, candidatesSet) = getPositionWithFewestOptions v 
+      candidates = Set.toList candidatesSet 
       recurSolve c = solve (V.update v (V.singleton (pos-1, c)))
   in if pos == 0 then
      --when pos == 0, we have the solution            
