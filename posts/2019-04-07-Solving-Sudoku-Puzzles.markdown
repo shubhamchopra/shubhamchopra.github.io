@@ -153,3 +153,5 @@ This is an interesting section of the profile -
 This tells us that a bulk of the time is spent in `getPotentialCandidates` function. This makes sense since most of the time since we use this to evaluate every branch at every level in the tree traversal. 
 
 In the next post, we look at structuring this as an optimization problem and see how that further minimizes the number of options in each step, and drastically reduces the run time.
+
+Full code available [here](https://github.com/shubhamchopra/sudoku-solver/blob/master/src/Solver.hs).
