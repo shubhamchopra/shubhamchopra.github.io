@@ -74,4 +74,82 @@ solve v =
 
 We now start with getting available options for all open positions. This is done in the `getPositionWithFewestOptions` function. We then sort them by size and pick the one with fewest possible options. We then try these options one by one. 
 
-When we run it, we immediately see the difference. We are able to move through the first 10 problems in ~30s.
+When we run it, we immediately see the difference. We are able to move through the first 10 problems in ~30s. The first problem takes ~2s to solve.
+
+```
+$ time stack exec sudoku-solver-exe -- sudoku17.1.txt 
+Total puzzles read: 1
+Puzzle
+".......1."
+"4........"
+".2......."
+"....5.4.7"
+"..8...3.."
+"..1.9...."
+"3..4..2.."
+".5.1....."
+"...8.6..."
+
+Tree traversal solution...
+"693784512"
+"487512936"
+"125963874"
+"932651487"
+"568247391"
+"741398625"
+"319475268"
+"856129743"
+"274836159"
+
+
+real    0m2.158s
+user    0m2.559s
+sys     0m0.259s
+
+```
+Lets see how we are doing memory-wise. We run the program with `stack exec sudoku-solver-exe -- sudoku17.1.txt +RTS -s`
+
+```
+  2,226,565,720 bytes allocated in the heap
+      18,428,496 bytes copied during GC
+         184,024 bytes maximum residency (4 sample(s))
+         124,808 bytes maximum slop
+               0 MB total memory in use (0 MB lost due to fragmentation)
+
+                                     Tot time (elapsed)  Avg pause  Max pause
+  Gen  0      2138 colls,  2138 par    0.452s   0.038s     0.0000s    0.0006s
+  Gen  1         4 colls,     3 par    0.002s   0.000s     0.0001s    0.0001s
+
+  Parallel GC work balance: 2.31% (serial 0%, perfect 100%)
+
+  TASKS: 18 (1 bound, 17 peak workers (17 total), using -N8)
+
+  SPARKS: 0(0 converted, 0 overflowed, 0 dud, 0 GC'd, 0 fizzled)
+
+  INIT    time    0.000s  (  0.001s elapsed)
+  MUT     time    2.034s  (  1.997s elapsed)
+  GC      time    0.454s  (  0.038s elapsed)
+  EXIT    time    0.000s  (  0.004s elapsed)
+  Total   time    2.488s  (  2.041s elapsed)
+
+  Alloc rate    1,094,929,649 bytes per MUT second
+
+  Productivity  81.7% of total user, 97.9% of total elapsed
+
+```
+We see that GC takes up around 20% of the total execution time. Theres a decent amount of memory being allocated and then GC'ed. To be able to extract more details, we need to re-build with `stack build --profile`. This will build the profile version of all dependencies as well. The profiling build would be really slow.
+
+We can run this using `$stack exec sudoku-solver-exe -- sudoku17.1.txt +RTS -p`. This would generate a file named `sudoku-solver-exe.prof`. This gives a break-down of how much time was spent in each function. That can help us guide potential optimizations. More details are available on [Haskell Profiling](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html).
+
+This is an interesting section of the profile - 
+```
+     getPositionWithFewestOptions.posOptions       Solver                            src/Solver.hs:62:7-82                                 1571      18769    0.3    0.9    99.0   99.4
+       getPositionWithFewestOptions.posOptions.\    Solver                            src/Solver.hs:62:31-67                                1573     729771    0.1    0.2    98.7   98.5
+        getPotentialCandidates                      Solver                            src/Solver.hs:(44,1)-(56,30)                          1575     729771    5.1    3.3    98.7   98.4
+         getPotentialCandidates.(...)               Solver                            src/Solver.hs:50:9-40                                 1604     729771    0.0    0.0    39.1   36.8
+          getColumn                                 Solver                            src/Solver.hs:(22,1)-(26,23)                          1606     729771    5.2    6.7    39.1   36.8
+```
+
+This tells us that a bulk of the time is spent in `getPotentialCandidates` function. This makes sense since most of the time since we use this to evaluate every branch at every level in the tree traversal. 
+
+In the next post, we look at structuring this as an optimization problem and see how that further minimizes the number of options in each step, and drastically reduces the run time.
