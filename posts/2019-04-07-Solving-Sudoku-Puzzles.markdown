@@ -1,5 +1,5 @@
 ---
-title: Solving Sudoku Puzzles
+title: Solving Sudoku Puzzles - Part 1
 description: Getting back to Haskell, Tree traversal and [AlgorithmX](https://en.wikipedia.org/wiki/Knuth%27s_Algorithm_X) based solution
 ---
 
@@ -150,8 +150,24 @@ This is an interesting section of the profile -
           getColumn                                 Solver                            src/Solver.hs:(22,1)-(26,23)                          1606     729771    5.2    6.7    39.1   36.8
 ```
 
-This tells us that a bulk of the time is spent in `getPotentialCandidates` function. This makes sense since most of the time since we use this to evaluate every branch at every level in the tree traversal. 
+This tells us that a bulk of the time is spent in `getPotentialCandidates` function. This makes sense since most of the time since we use this to evaluate every branch at every level in the tree traversal. We would want to minimize the time this function takes as best as we can. First we try to get the solutions for the first 10 puzzles to get a baseline.
 
+```
+$ time stack exec sudoku-solver-exe -- sudoku17.10.txt
+...
+real    0m15.457s
+user    0m17.944s
+sys     0m1.951s
+```
+We've so far been using ordered containers. We can now try using unordered-containers. These are available from a package "unordered-containers". The implementations are hash based which guarantee effective constant time access. For our use-case we don't see a lot of benefit from using it though.
+
+```
+$ time stack exec sudoku-solver-exe -- sudoku17.10.txt
+...
+real    0m14.519s
+user    0m18.059s
+sys     0m1.791s
+```
 In the next post, we look at structuring this as an optimization problem and see how that further minimizes the number of options in each step, and drastically reduces the run time.
 
 Full code available [here](https://github.com/shubhamchopra/sudoku-solver/blob/master/src/Solver.hs).
