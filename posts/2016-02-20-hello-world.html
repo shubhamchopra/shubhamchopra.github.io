@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Shubham Chopra - Hello World! Setting up a blog with Hakyll + Travis CI</title>
+        <link rel="stylesheet" type="text/css" href="../css/brooklyn.css" />
+        <link rel="stylesheet" type="text/css" href="../css/syntax.css" />
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body>
+        <div id="header">
+            <div id="logo">
+                <a href="../">Shubham Chopra</a>
+            </div>
+            <div id="navigation">
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </div>
+        </div>
+
+        <div id="content">
+            <h1>Hello World! Setting up a blog with Hakyll + Travis CI</h1>
+
+            <div class="info">
+    Posted on February 20, 2016
+    
+</div>
+<section>
+<h2 id="starting-a-blog">Starting a blog</h2>
+<p>I have recently started learning Haskell and thought it would be a good idea to blog my progress. Nothing too fancy, just a few basic things, mostly a static website. Actually, completely static website. The folks at GitHub have graciously allowed everyone to start their own blogs, but they mostly want static content. I did not like the idea of writing html files and then maintaining them individually. The thought of changing the look or say, the header or footer, or maybe to edit the main page after every post, did not seem very appealing. I wanted a tool, that could create a blogging site for me. I looked at WordPress and it had the capability of generating static webpages that I could then upload. Promising, but didn’t look too encouraging.</p>
+<p>Enter <a href="http://jaspervdj.be/hakyll">Hakyll</a>. It lets me write posts in whatever format I please and could generate static website just like I wanted. The fact that it was all written in Haskell positively warmed my heart. So, the problem at hand is to find the easiest way we can have our blog deployed as “source code”, written in a format like, but not limited to, markdown, latex, lhs even. We then need a system that can read this source, build the Hakyll binaries, and generate the site and push it to the github repo for hosting. Bonus points for being able to host on your own domain name.</p>
+<p>First, lets get the environment prepped. I will be using <a href="http://haskellstack.org/">Stack</a> and <a href="https://www.haskell.org/ghc/">GHC</a> 7.10. The installation process is fairly well documented. Once you have stack working, you can follow the instructions on installing Hakyll. It might take a little time for stack to download and build all the libs it depends on.</p>
+<h2 id="getting-started-with-hakyll">Getting started with <a href="http://jaspervdj.be/hakyll">Hakyll</a></h2>
+<p>For a simple blog, you really don’t have to tinker around with the Haskell code base. The Haskell code base defines your routing rules, and your compilation rules that will be used to read your posts, convert them to html and then put them in pre-defined templates. This is then compiled into a binary called <em>site</em>. You can use this binary to build your static site, and even see the site using its <em>watch</em> command. Bottomline, if you aren’t modifying or creating new directories or changing the structure of the website, you wouldn’t need to touch the Haskell bits. Once you are familiar with this, you are ready to start writing posts.</p>
+<h2 id="pushing-stuff-to-github">Pushing stuff to GitHub</h2>
+<p>Once you have yours posts ready, you can create a repo in your account on GitHub that is called <em>username</em>.github.io. Init git in the directory you have your website in. You can add _site, _cache, .stack-work to the .gitignore file. You should push your code base to a branch in your repo, say <strong>source</strong>. This is because GitHub expects your static website to be on the <strong>master</strong> branch.</p>
+<p>You can build your site using <em>stack exec site build</em>. Your static website would be generated in the directory _site. At this point, you have your whole website ready. You can try pushing the contents of _site folder to the master branch of your repo and see if you can access it using the address <em>username</em>.github.io. The downside of this, is that you would have to repeat this process every time you did any modification to your site. Or every time you wrote a new post. Not fun. That’s where Travis CI comes into the picture.</p>
+<h2 id="travis-ci"><a href="https://travis-ci.org">Travis CI</a></h2>
+<p>Travis is a continuous integration tool. It lets you specify the details of your project in a simple specification and uses it to build and test your project. You don’t have to setup your own environment like you would have to do with say Jenkins. And its free for open-source projects! So what you now do is specify the details of your Hakyll project in a .travis.yml file and let Travis talk to your GitHub repo. We are being a little sneaky here and not really using Travis for it’s intended purpose. We don’t really run any tests, we are just using it’s capability to build using our instructions and then commit the generated website back.</p>
+<p>Things can get a little nasty here, so I will walk through the bits. First up, as you probably saw when you installed Hakyll, it takes a decent amount of time to download and build all the libs it depends on. So we would ideally want to cache this collection of libs. Travis lets you do that with its new container infrastructure. We enable it by setting <em>sudo: false</em>.</p>
+<pre><code># Use new container infrastructure to enable caching
+sudo: false</code></pre>
+<p>Travis doesn’t support stack yet. So we will download our own tools and use them. We don’t want Travis to spend any time boot-strapping a heavy build environment.</p>
+<pre><code># Choose a lightweight base image; we provide our own build tools.    
+language: c</code></pre>
+<p>We set some environment variables here. We will get to the <em>secure</em> section in a bit.</p>
+<pre><code>env:
+  global:
+  - secure: [encrypted secret key]</code></pre>
+<p>Here, we tell Travis that we would only be interested in checking out the branch source. Well also tell Travis the directory that contains our build so it can cache it for later.</p>
+<pre><code>branches:
+  only:
+  - source
+
+#Caching so the next build will be fast too.    
+cache:
+  directories:
+  - &quot;$HOME/.stack&quot;</code></pre>
+<p>This is where we download our own stack binary from Stack’s website. We decompress it and make stack available in the path.</p>
+<pre><code>before_install:
+- mkdir -p ~/.local/bin
+- export PATH=$HOME/.local/bin:/opt/ghc/$GHC_VERSION/bin:$PATH
+- travis_retry curl -sSL https://get.haskellstack.org/ | sh</code></pre>
+<p>Stack would install the appropriate GHC version and the build dependencies in the local stack folder.</p>
+<p>The <em>install</em> and <em>script</em> tags show the usual commands we would run to build Hakyll.</p>
+<pre><code>install:
+- stack --no-terminal setup
+
+# steps till script are cached. we prepare the environment here.
+script:
+- stack path
+- stack --no-terminal build</code></pre>
+<p>A lot of the magic happens in next section. A few things to note before we go further. Travis checkouts the branch in a way that puts it in a <em>detached head</em> state. This means any changes to the branch cannot be committed. Also, we had _site in .gitignore.</p>
+<p>So what we do here, is to enter the _site folder, init a git repo, set the remote to our own repo and just commit back only the content of this directory to the <em>master</em> branch of our repo. Since the website is anyways getting generated every time, and it is not the source we are tracking, we force push to master to avoid all the trouble around merge conflicts.</p>
+<pre><code>after_script:
+- stack --no-terminal exec site build
+- cd _site
+# Adding a CNAME file, so our custom domain works with github 
+- echo &quot;blog.${GH_USER}.com&quot; &gt; CNAME  
+- git config --global user.email &quot;$GH_EMAIL&quot;
+- git config --global user.name &quot;$GH_NAME&quot;
+- export REMOTE=$(git config remote.origin.url | sed 's/.*:\/\///')
+- git init  
+- git remote add github https://${GH_USER}:${GH_TOKEN}@${REMOTE}
+- git add --all
+- git status
+- git commit -m &quot;Built by Travis ( build $TRAVIS_BUILD_NUMBER )&quot;
+# We don't care about commits to the master as a completely new site would be generated everytime  
+- git push github master:master -f 2&gt;&amp;1 | grep -v http</code></pre>
+<p>If you aren’t hosting your blog on your own website, you don’t need the line where <strong>CNAME</strong> file is created.</p>
+<p>Lastly, you can also tell Travis to send you notifications on the build process. Here I am telling Travis to send me an email always on success. By default, it always sends an email on failures.</p>
+<pre><code>notifications:
+  email:
+    recipients:
+      - email@example.com
+    on_success: always</code></pre>
+<h3 id="the-secure-section">The <em>secure</em> section</h3>
+<p>As a part of this process, you would be committing code back to your repo in GitHub. You would have to provide authentication tokens to be able to do that. But these authentication tokens are equivalent to the password to your GitHub account. <em>Do NOT put your token into a file like this and make it public</em>. Travis solves this problem by providing an encryption tool. More information about is available <a href="https://docs.travis-ci.com/user/encryption-keys/">here</a>.</p>
+<p>It lets you encrypt any secure keys with a simple command like <em>travis encrypt key=value</em>. This command would generate an encrypted string that you can put in your .travis.yml file. Travis uses asymmetric encryption for this. You encrypt the data using a public key, and so far as I could find, Travis has the private key that it doesn’t disclose. This isn’t very encouraging either, but we can probably assume they have some decent system around it and is therefore the lesser evil. You should anyways make sure you provide just the bare minimum access to this key.</p>
+<h2 id="custom-domain-name">Custom domain name</h2>
+<p>Once you are done with the GitHub portion, your website can be accessed at <em>username</em>.github.io. You can now forward your domain name to this github location. GitHub has some decent documentation about it <a href="https://help.github.com/articles/setting-up-a-www-subdomain/">here</a>. It boils down to creating a <em>CNAME</em> record if you want a subdomain like <em>blog</em>.somedomain.xyz or an <em>A</em> record with your DNS provider pointing to your GitHub repo (<em>username</em>.github.io). If you only do this, the links within your website will still show <em>username</em>.github.io. You can add a file named <em>CNAME</em> to your site that has your sub-domain name. And you are done!</p>
+<h2 id="gotchas">Gotchas</h2>
+<ul>
+<li>I found out that I had to make <em>master</em> branch the default branch so GitHub start hosting the site in it. That means that it won’t let you delete the branch. Oddly, just switching the default branch back to <em>source</em> seemed to work. GitHub has no trouble reading the website in the master branch now, even though it is not the default branch.</li>
+<li>Careful with the tokens again. The <em>git push</em> at the end are piped through grep to avoid printing the http line which would contain the secure token.</li>
+</ul>
+</section>
+<section>
+<div id="disqus_thread"></div>
+<script>
+/**
+  * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+  */
+
+   var disqus_config = function () {
+   this.page.url = window.location.href.split('/').splice(0,3).join("/")+'/posts/2016-02-20-hello-world.html'; // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = '/posts/2016-02-20-hello-world.html'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+   
+(function() { // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//blog-shubhamchopra-com.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</section>
+
+        </div>
+        <div id="footer">
+          Site proudly generated by
+          <a href="http://jaspervdj.be/hakyll">Hakyll</a>.             This theme was designed by <a href="http://twitter.com/katychuang">Dr. Kat</a> and showcased in the <a href="http://katychuang.com/hakyll-cssgarden/gallery/">Hakyll-CSSGarden</a>
+
+        </div>
+    </body>
+</html>

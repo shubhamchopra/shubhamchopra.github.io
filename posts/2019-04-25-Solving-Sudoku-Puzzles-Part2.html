@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Shubham Chopra - Solving Sudoku Puzzles - Part 2</title>
+        <link rel="stylesheet" type="text/css" href="../css/brooklyn.css" />
+        <link rel="stylesheet" type="text/css" href="../css/syntax.css" />
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body>
+        <div id="header">
+            <div id="logo">
+                <a href="../">Shubham Chopra</a>
+            </div>
+            <div id="navigation">
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </div>
+        </div>
+
+        <div id="content">
+            <h1>Solving Sudoku Puzzles - Part 2</h1>
+
+            <div class="info">
+    Posted on April 25, 2019
+    
+</div>
+<section>
+<p>The previous post had a basic tree-based solver to solve Sudoku puzzles. We now look at a solver that frames this as an <a href="https://en.wikipedia.org/wiki/Exact_cover">Exact Cover problem</a>.</p>
+<h2 id="exact-cover">Exact Cover</h2>
+<p>Exact cover is a constraint satisfaction problem. The wikipedia link above has a more comprehensive description of the problem. For a given set X, and a collection of subsets of X, say S, we try to find sets that together can form X, but in a way that no element of X is repeated in the sets we choose. That is the <em>exact</em> in the <em>Exact Cover</em>.</p>
+<h2 id="sudoku-as-exact-cover">Sudoku as Exact Cover</h2>
+<p><a href="https://en.wikipedia.org/wiki/Exact_cover#Sudoku">The exact cover description</a> again describes in detail how we can frame Sudoku as an exact cover problem. We have 4 kinds of constraints</p>
+<h3 id="row-column-constraint">Row-column constraint</h3>
+<p>We know that each cell (or an intersection of row and column) can have one of 1 through 9 values. This constraints in represented as R1C1 = {R1C1#1, R1C1#2 .. R1C1#9}. The set contains all the possibilities that can satisfy this constraint, and exactly one needs to be chosen for the solution to be viable.</p>
+<h3 id="row-constraints">Row constraints</h3>
+<p>A given row needs to have numbers 1 through 9. This is expressed as a set of 9 constraints, one for each number. So for example, the first constraint would be: R1#1 = {R1C1#1, R1C2#1, .. R1C9#1}. Again, there are 9 ways this constraint can be satisfied, and exactly one option needs to be chosen for the solution to exist.</p>
+<h3 id="column-and-box-constraints">Column and Box constraints</h3>
+<p>Each column and 3x3 box also needs to satisfy the similar kinds of constraints as the Row constraint described above.</p>
+<p>All these result in 4x(9x9) = 324 constraints. Each of the options that meet the constraints together form a total of 9x9x9 = 729 total options. These are expressed as a 729x324 sized matrix. The full matrix is <a href="https://www.stolaf.edu//people/hansonr/sudoku/exactcovermatrix.htm">shown here</a>.</p>
+<p>As we can see, there are a lot of 0s in this matrix. So we can express this matrix using a sparse representation. We only keep a track of the 1s, and represent it as (rowId, colId, 1).</p>
+<p>So we have the problem setup and ready. We can solve this using <em>Algorithm X</em>. To be able to do that, we would need to be careful to keep a set of constraints, alongside the matrix, to make sure we are able to keep a track of constraints that have not been met.</p>
+<p>The algorithm starts with choosing a constraint that has minimum possible options. One of the options is randomly chosen and we explore if we can get to a solution with it, or we backtrack. At every step, we eliminate all the other potential values that also meet the constraint, since we need <em>exact</em> cover. <a href="https://github.com/shubhamchopra/sudoku-solver/blob/master/src/AlgoXSolver.hs">The code is available here</a>.</p>
+<p>Lets try running this on 10 puzzles -</p>
+<pre><code>$ time stack exec sudoku-solver-exe -- sudoku17.10.txt
+...
+real    0m0.435s
+user    0m0.461s
+sys     0m0.111s</code></pre>
+<p>This was fast. The tree-traversal took ~15s to solve these 10 puzzles. This method did that in less than half a second.</p>
+<h2 id="tree-traversal-vs-exact-cover">Tree traversal vs Exact cover</h2>
+<p>So what did we miss in the previous implementation? The main reason the exact cover version works this fast, is almost complete pruning. Recall that we only pruned the set of possibilities with a very simple approach in the tree traversal. We did not really prune all non-viable options. The exact cover implementation is a lot more successful in doing that, and thereby significantly reducing the amount of backtracking needed to solve a puzzle.</p>
+</section>
+<section>
+<div id="disqus_thread"></div>
+<script>
+/**
+  * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+  */
+
+   var disqus_config = function () {
+   this.page.url = window.location.href.split('/').splice(0,3).join("/")+'/posts/2019-04-25-Solving-Sudoku-Puzzles-Part2.html'; // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = '/posts/2019-04-25-Solving-Sudoku-Puzzles-Part2.html'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+   
+(function() { // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//blog-shubhamchopra-com.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</section>
+
+        </div>
+        <div id="footer">
+          Site proudly generated by
+          <a href="http://jaspervdj.be/hakyll">Hakyll</a>.             This theme was designed by <a href="http://twitter.com/katychuang">Dr. Kat</a> and showcased in the <a href="http://katychuang.com/hakyll-cssgarden/gallery/">Hakyll-CSSGarden</a>
+
+        </div>
+    </body>
+</html>

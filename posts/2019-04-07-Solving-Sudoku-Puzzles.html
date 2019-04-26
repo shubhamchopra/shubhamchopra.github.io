@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Shubham Chopra - Solving Sudoku Puzzles - Part 1</title>
+        <link rel="stylesheet" type="text/css" href="../css/brooklyn.css" />
+        <link rel="stylesheet" type="text/css" href="../css/syntax.css" />
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body>
+        <div id="header">
+            <div id="logo">
+                <a href="../">Shubham Chopra</a>
+            </div>
+            <div id="navigation">
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </div>
+        </div>
+
+        <div id="content">
+            <h1>Solving Sudoku Puzzles - Part 1</h1>
+
+            <div class="info">
+    Posted on April  7, 2019
+    
+</div>
+<section>
+<h2 id="getting-back-to-haskell">Getting back to Haskell</h2>
+<p>Haskell ecosystem has seen quite a bit of change in the last few years. I thought it would be great to familiarize with the language again after a long break.</p>
+<h3 id="my-dev-environment">My dev environment</h3>
+<p>To get things off the ground, I was able to find a couple of very helpful blog posts that helped me set-up my dev environment. I am a <em>vi</em> user. And I was lucky to find this post on <a href="https://mendo.zone/fun/neovim-setup-haskell/">setting NeoVIM up for Haskell development</a>. This helps set up a very nifty dev environment with a lot of helpful features with the help of Intero.</p>
+<p>I also came across <a href="https://lexi-lambda.github.io/blog/2018/02/10/an-opinionated-guide-to-haskell-in-2018/">an opinionated take on Haskell</a>. Its a pretty long post and it will take me quite some time to digest it, but certain useful things mentioned there made sense, particularly when you are trying to setup an environment. Specifically, it mentions, do not ever run <code>stack install</code>. As it explains, Stack works best when things are installed in local sandboxes. So, for a given project, it makes more sense to run <code>stack build --copy-compiler-tool hlint hoogle weeder</code>. This way, the binaries are installed in the local stack sandbox, and can be reused if you happen to use the same sandbox for another project.</p>
+<h2 id="sudoku">Sudoku</h2>
+<p>With the dev environment ready to go, its time to dive in.</p>
+<p>Sudoku is a simple puzzle with a 9x9 grid. The objective is to fill the grid with numbers 1 through 9, such that each row, column, and a 3x3 block has 1 to 9 exactly once. A much better description of it is available <a href="https://en.wikipedia.org/wiki/Sudoku">in its wikipedia page</a>. We would need some sample Sudoku puzzles to test out code. A ton of puzzles are available <a href="https://github.com/simonmar/parconc-examples/blob/master/sudoku17.49151.txt">here</a>.</p>
+<h3 id="depth-first-search">Depth First Search</h3>
+<p>Given the nature of the problem, a brute force, DFS based approach seems like an obvious choice to solve the problem. The idea is to start from the first open position, find out all available options for that position, and then consider each option, one-by-one. Each time, we move deeper into the tree. If we come across a situation where we still have open position, but no viable options, we backtrack. The following code snippet shows one such implementation.</p>
+<p>We take a grid (a vector of size 81 in this example that we internally map to a 9x9 grid), and a starting position. We check if the position is filled, else, we find out the potential options by looking at the 3 constraints. We check which numbers need to be filled in the column, the row, and the block. The viable option for a given position is the intersection of these 3 sets. Once we have the possible candidates, we iterate through them one by one - exploring them till we either find a solution, or run out of options. The <code>concat $ map</code> line at the end does this.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">getPotentialCandidates ::</span> <span class="dt">V.Vector</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Set.Set</span> <span class="dt">Char</span>
+getPotentialCandidates v pos 
+  <span class="fu">|</span> char <span class="fu">/=</span> <span class="ch">'.'</span> <span class="fu">=</span> Set.singleton char
+  <span class="fu">|</span> otherwise <span class="fu">=</span> 
+    <span class="kw">let</span> rowId <span class="fu">=</span> (pos<span class="fu">-</span><span class="dv">1</span>) <span class="ot">`div`</span> <span class="dv">9</span>
+        colId <span class="fu">=</span> (pos<span class="fu">-</span><span class="dv">1</span>) <span class="ot">`mod`</span> <span class="dv">9</span>
+        <span class="dt">Just</span> row <span class="fu">=</span> getRow (rowId<span class="fu">+</span><span class="dv">1</span>) v
+        <span class="dt">Just</span> col <span class="fu">=</span> getColumn (colId<span class="fu">+</span><span class="dv">1</span>) v
+        <span class="dt">Just</span> block <span class="fu">=</span> getBlock ((rowId <span class="ot">`div`</span> <span class="dv">3</span>)<span class="fu">*</span><span class="dv">3</span> <span class="fu">+</span> (colId <span class="ot">`div`</span> <span class="dv">3</span>) <span class="fu">+</span> <span class="dv">1</span>) v 
+        missingRowNums <span class="fu">=</span> getMissingNumbers row 
+        missingColNums <span class="fu">=</span> getMissingNumbers col 
+        missingBlkNums <span class="fu">=</span> getMissingNumbers block
+     <span class="kw">in</span> missingRowNums <span class="ot">`Set.intersection`</span> missingColNums <span class="ot">`Set.intersection`</span> missingBlkNums
+  <span class="kw">where</span> char <span class="fu">=</span> v <span class="fu">V.!</span> (pos <span class="fu">-</span> <span class="dv">1</span>)
+  
+<span class="ot">solve ::</span> <span class="dt">V.Vector</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">V.Vector</span> <span class="dt">Char</span>]
+solve v <span class="dv">81</span> <span class="fu">=</span> [v]
+solve v pos 
+  <span class="fu">|</span> char <span class="fu">/=</span> <span class="ch">'.'</span> <span class="fu">=</span> solve v (pos <span class="fu">+</span> <span class="dv">1</span>)
+  <span class="fu">|</span> otherwise <span class="fu">=</span> 
+    <span class="kw">let</span> candidates <span class="fu">=</span> Set.toList <span class="fu">$</span> getPotentialCandidates v pos
+        recurSolve candidate <span class="fu">=</span> solve (V.update v (V.singleton (pos<span class="fu">-</span><span class="dv">1</span>, candidate))) (pos<span class="fu">+</span><span class="dv">1</span>)  
+     <span class="kw">in</span> concat <span class="fu">$</span> map recurSolve candidates 
+  <span class="kw">where</span> char <span class="fu">=</span> v <span class="fu">V.!</span> (pos <span class="fu">-</span> <span class="dv">1</span>)  </code></pre></div>
+<p>The code works! Well, sort of. It definitely tries to do what we intended. It’s not the best approach though and the code just take a very long time (does not even finish) for even the first problem. Turns out, the very first position might have a large number of possibilities, and our choice of naively choosing the next position right after might also not be the best approach, as that would give us a dense tree, and we’d have a lot of branches to check.</p>
+<p>The problem needs a re-look. A DFS based approach does seem reasonable. We might have to be a little clever pruning our tree though. Ultimately, that would decide how quickly we are able to get to the solution. The nature of the problem ensures that as we go down a path, the number of options reduces, so part of the work is done for us. We need to be clever about choosing which path to start with. One way to do this would be to start with a box that has the least possible number of options. This seems quite intuitive, as this is also how one generally starts solving a Sudoku puzzle. So we try that approach. The main recursion is now modified to look like the following:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">getPositionWithFewestOptions ::</span> <span class="dt">V.Vector</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span>, <span class="dt">Set.Set</span> <span class="dt">Char</span>)
+getPositionWithFewestOptions v <span class="fu">=</span> 
+  <span class="kw">let</span> openPositions <span class="fu">=</span> filter (\p <span class="ot">-&gt;</span> v <span class="fu">V.!</span> p <span class="fu">==</span> <span class="ch">'.'</span>) [<span class="dv">0</span> <span class="fu">..</span> <span class="dv">80</span>]
+      posOptions <span class="fu">=</span> map (\p <span class="ot">-&gt;</span> (p<span class="fu">+</span><span class="dv">1</span>, getPotentialCandidates v (p<span class="fu">+</span><span class="dv">1</span>))) openPositions
+      sortedOptions <span class="fu">=</span> sortBy (\(_,o1) (_,o2) <span class="ot">-&gt;</span> compare (Set.size o1) (Set.size o2)) posOptions
+   <span class="kw">in</span> <span class="kw">if</span> (length openPositions <span class="fu">&gt;</span> <span class="dv">0</span> ) <span class="kw">then</span> head sortedOptions <span class="kw">else</span> (<span class="dv">0</span>, Set.empty)
+   
+<span class="ot">solve ::</span> <span class="dt">V.Vector</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> [<span class="dt">V.Vector</span> <span class="dt">Char</span>]
+solve v <span class="fu">=</span> 
+  <span class="kw">let</span> (pos, candidatesSet) <span class="fu">=</span> getPositionWithFewestOptions v 
+      candidates <span class="fu">=</span> Set.toList candidatesSet 
+      recurSolve c <span class="fu">=</span> solve (V.update v (V.singleton (pos<span class="fu">-</span><span class="dv">1</span>, c)))
+  <span class="kw">in</span> <span class="kw">if</span> pos <span class="fu">==</span> <span class="dv">0</span> <span class="kw">then</span>
+     <span class="co">--when pos == 0, we have the solution            </span>
+       [v] 
+     <span class="kw">else</span> 
+       concat <span class="fu">$</span> map recurSolve candidates   </code></pre></div>
+<p>We now start with getting available options for all open positions. This is done in the <code>getPositionWithFewestOptions</code> function. We then sort them by size and pick the one with fewest possible options. We then try these options one by one.</p>
+<p>When we run it, we immediately see the difference. We are able to move through the first 10 problems in ~30s. The first problem takes ~2s to solve.</p>
+<pre><code>$ time stack exec sudoku-solver-exe -- sudoku17.1.txt 
+Total puzzles read: 1
+Puzzle
+&quot;.......1.&quot;
+&quot;4........&quot;
+&quot;.2.......&quot;
+&quot;....5.4.7&quot;
+&quot;..8...3..&quot;
+&quot;..1.9....&quot;
+&quot;3..4..2..&quot;
+&quot;.5.1.....&quot;
+&quot;...8.6...&quot;
+
+Tree traversal solution...
+&quot;693784512&quot;
+&quot;487512936&quot;
+&quot;125963874&quot;
+&quot;932651487&quot;
+&quot;568247391&quot;
+&quot;741398625&quot;
+&quot;319475268&quot;
+&quot;856129743&quot;
+&quot;274836159&quot;
+
+
+real    0m2.158s
+user    0m2.559s
+sys     0m0.259s
+</code></pre>
+<p>Lets see how we are doing memory-wise. We run the program with <code>stack exec sudoku-solver-exe -- sudoku17.1.txt +RTS -s</code></p>
+<pre><code>  2,226,565,720 bytes allocated in the heap
+      18,428,496 bytes copied during GC
+         184,024 bytes maximum residency (4 sample(s))
+         124,808 bytes maximum slop
+               0 MB total memory in use (0 MB lost due to fragmentation)
+
+                                     Tot time (elapsed)  Avg pause  Max pause
+  Gen  0      2138 colls,  2138 par    0.452s   0.038s     0.0000s    0.0006s
+  Gen  1         4 colls,     3 par    0.002s   0.000s     0.0001s    0.0001s
+
+  Parallel GC work balance: 2.31% (serial 0%, perfect 100%)
+
+  TASKS: 18 (1 bound, 17 peak workers (17 total), using -N8)
+
+  SPARKS: 0(0 converted, 0 overflowed, 0 dud, 0 GC'd, 0 fizzled)
+
+  INIT    time    0.000s  (  0.001s elapsed)
+  MUT     time    2.034s  (  1.997s elapsed)
+  GC      time    0.454s  (  0.038s elapsed)
+  EXIT    time    0.000s  (  0.004s elapsed)
+  Total   time    2.488s  (  2.041s elapsed)
+
+  Alloc rate    1,094,929,649 bytes per MUT second
+
+  Productivity  81.7% of total user, 97.9% of total elapsed
+</code></pre>
+<p>We see that GC takes up around 20% of the total execution time. Theres a decent amount of memory being allocated and then GC’ed. To be able to extract more details, we need to re-build with <code>stack build --profile</code>. This will build the profile version of all dependencies as well. The profiling build would be really slow.</p>
+<p>We can run this using <code>$stack exec sudoku-solver-exe -- sudoku17.1.txt +RTS -p</code>. This would generate a file named <code>sudoku-solver-exe.prof</code>. This gives a break-down of how much time was spent in each function. That can help us guide potential optimizations. More details are available on <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html">Haskell Profiling</a>.</p>
+<p>This is an interesting section of the profile -</p>
+<pre><code>     getPositionWithFewestOptions.posOptions       Solver                            src/Solver.hs:62:7-82                                 1571      18769    0.3    0.9    99.0   99.4
+       getPositionWithFewestOptions.posOptions.\    Solver                            src/Solver.hs:62:31-67                                1573     729771    0.1    0.2    98.7   98.5
+        getPotentialCandidates                      Solver                            src/Solver.hs:(44,1)-(56,30)                          1575     729771    5.1    3.3    98.7   98.4
+         getPotentialCandidates.(...)               Solver                            src/Solver.hs:50:9-40                                 1604     729771    0.0    0.0    39.1   36.8
+          getColumn                                 Solver                            src/Solver.hs:(22,1)-(26,23)                          1606     729771    5.2    6.7    39.1   36.8</code></pre>
+<p>This tells us that a bulk of the time is spent in <code>getPotentialCandidates</code> function. This makes sense since most of the time since we use this to evaluate every branch at every level in the tree traversal. We would want to minimize the time this function takes as best as we can. First we try to get the solutions for the first 10 puzzles to get a baseline.</p>
+<pre><code>$ time stack exec sudoku-solver-exe -- sudoku17.10.txt
+...
+real    0m15.457s
+user    0m17.944s
+sys     0m1.951s</code></pre>
+<p>We’ve so far been using ordered containers. We can now try using unordered-containers. These are available from a package “unordered-containers”. The implementations are hash based which guarantee effective constant time access. For our use-case we don’t see a lot of benefit from using it though.</p>
+<pre><code>$ time stack exec sudoku-solver-exe -- sudoku17.10.txt
+...
+real    0m14.519s
+user    0m18.059s
+sys     0m1.791s</code></pre>
+<p>In the next post, we look at structuring this as an optimization problem and see how that further minimizes the number of options in each step, and drastically reduces the run time.</p>
+<p>Full code available <a href="https://github.com/shubhamchopra/sudoku-solver/blob/master/src/Solver.hs">here</a>.</p>
+</section>
+<section>
+<div id="disqus_thread"></div>
+<script>
+/**
+  * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+  */
+
+   var disqus_config = function () {
+   this.page.url = window.location.href.split('/').splice(0,3).join("/")+'/posts/2019-04-07-Solving-Sudoku-Puzzles.html'; // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = '/posts/2019-04-07-Solving-Sudoku-Puzzles.html'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+   
+(function() { // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//blog-shubhamchopra-com.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</section>
+
+        </div>
+        <div id="footer">
+          Site proudly generated by
+          <a href="http://jaspervdj.be/hakyll">Hakyll</a>.             This theme was designed by <a href="http://twitter.com/katychuang">Dr. Kat</a> and showcased in the <a href="http://katychuang.com/hakyll-cssgarden/gallery/">Hakyll-CSSGarden</a>
+
+        </div>
+    </body>
+</html>
